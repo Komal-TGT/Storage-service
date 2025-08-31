@@ -1,0 +1,55 @@
+### Health
+GET http://localhost:4004/health
+
+### Upload a receipt (PDF)
+POST http://localhost:4004/api/receipts/upload
+x-api-key: mylocaldevkey
+Content-Type: multipart/form-data; boundary=WebKitFormBoundary7MA4YWxkTrZu0gW
+
+--WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="clientId"
+
+acme
+--WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="posId"
+
+POS-42
+--WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="dateISO"
+
+2025-08-31
+--WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; filename="receipt.pdf"
+Content-Type: application/pdf
+
+< ./sample.pdf
+--WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### Generate expiring SAS (read-only for 15 minutes)
+POST http://localhost:4004/api/receipts/signed-url
+x-api-key: mylocaldevkey
+Content-Type: application/json
+
+{
+  "blobPath": "client/acme/2025/08/31/POS-42/abc-123.pdf",
+  "permissions": "r",
+  "expirySeconds": 900
+}
+
+### Generate permanent SAS (revocable by policy)
+POST http://localhost:4004/api/receipts/signed-url
+x-api-key: mylocaldevkey
+Content-Type: application/json
+
+{
+  "blobPath": "client/acme/2025/08/31/POS-42/abc-123.pdf",
+  "permanent": true
+}
+
+### Fetch metadata & tags
+GET http://localhost:4004/api/receipts/info?blobPath=client/acme/2025/08/31/POS-42/abc-123.pdf
+x-api-key: mylocaldevkey
+
+### Stream download
+GET http://localhost:4004/api/receipts/download?blobPath=client/acme/2025/08/31/POS-42/abc-123.pdf&attachment=false
+x-api-key: mylocaldevkey
